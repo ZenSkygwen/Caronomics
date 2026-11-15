@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caronomics — Discover Cars, Drive Your Way</title>
+
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Supabase JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Tailwind Custom Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            poppins: ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            jet: '#020617',
+            racing: '#DC2626',
+            racingdk: '#B91C1C',
+            slatebg: '#F1F5F9',
+            darksteel: '#0F172A',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* ===== BASE ===== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #F1F5F9;
+      color: #020617;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #E2E8F0;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #DC2626;
+      border-radius: 99px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #B91C1C;
+    }
+
+    /* ===== LANDING ===== */
+    .landing-bg {
+      background: linear-gradient(160deg, #0F172A 0%, #1E293B 45%, #0F172A 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .landing-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 15% 60%, rgba(220, 38, 38, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 85% 25%, rgba(220, 38, 38, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 50% 90%, rgba(220, 38, 38, 0.06) 0%, transparent 45%);
+      pointer-events: none;
+    }
+
+    /* Diagonal racing stripe */
+    .landing-bg::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 40%;
+      height: 200%;
+      background: linear-gradient(165deg, transparent 44%, rgba(220, 38, 38, 0.06) 45%, rgba(220, 38, 38, 0.06) 55%, transparent 56%);
+      pointer-events: none;
+    }
+
+    /* ===== CAR FRAME ===== */
+    .car-frame {
+      width: 380px;
+      height: 380px;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 3px solid rgba(220, 38, 38, 0.35);
+      box-shadow:
+        0 0 50px rgba(220, 38, 38, 0.12),
+        0 25px 60px rgba(0, 0, 0, 0.35),
+        inset 0 0 30px rgba(0, 0, 0, 0.15);
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    .car-frame:hover {
+      transform: scale(1.04) rotate(-0.5deg);
+      box-shadow:
+        0 0 70px rgba(220, 38, 38, 0.2),
+        0 30px 70px rgba(0, 0, 0, 0.45);
+    }
+
+    .car-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+
+    .car-frame:hover img {
+      transform: scale(1.08);
+    }
+
+    /* ===== CTA BUTTON ===== */
+    .cta-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 48px;
+      background: linear-gradient(135deg, #DC2626, #B91C1C);
+      color: white;
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: 0.02em;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 8px 30px rgba(220, 38, 38, 0.4);
+      text-transform: uppercase;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 14px 45px rgba(220, 38, 38, 0.55);
+    }
+
+    .cta-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 25%, rgba(255, 255, 255, 0.18) 50%, transparent 75%);
+      transform: translateX(-100%);
+      transition: transform 0.7s ease;
+    }
+
+    .cta-btn:hover::after {
+      transform: translateX(100%);
+    }
+
+    /* ===== NAV TAB ===== */
+    .nav-tab {
+      padding: 12px 32px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      background: transparent;
+      color: #64748B;
+      letter-spacing: 0.01em;
+    }
+
+    .nav-tab:hover {
+      color: #DC2626;
+      background: rgba(220, 38, 38, 0.05);
+    }
+
+    .nav-tab.active {
+      background: #DC2626;
+      color: white;
+      border-color: #DC2626;
+      box-shadow: 0 4px 18px rgba(220, 38, 38, 0.3);
+    }
+
+    /* ===== CAR CARD ===== */
+    .car-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(2, 6, 23, 0.07), 0 1px 3px rgba(2, 6, 23, 0.04);
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(226, 232, 240, 0.6);
+    }
+
+    .car-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 50px rgba(2, 6, 23, 0.14), 0 8px 20px rgba(220, 38, 38, 0.08);
+    }
+
+    .car-card-img-wrap {
+      position: relative;
+      overflow: hidden;
+      background: #E2E8F0;
+    }
+
+    .car-card-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .car-card:hover .car-card-img {
+      transform: scale(1.07);
+    }
+
+    .car-card-body {
+      padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .see-more-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #DC2626, #B91C1C);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .see-more-btn:hover {
+      background: linear-gradient(135deg, #B91C1C, #991B1B);
+      box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35);
+      transform: translateY(-2px);
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.75);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 24px;
+      max-width: 620px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.88) translateY(40px);
+      transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(226, 232, 240, 0.5);
+    }
+
+    .modal-overlay.show .modal-content {
+      transform: scale(1) translateY(0);
+    }
+
+    /* ===== BRAND SECTION HEADER ===== */
+    .brand-section-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 28px;
+      background: linear-gradient(135deg, #0F172A, #1E293B);
+      color: white;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 1.35rem;
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.2);
+      letter-spacing: 0.01em;
+    }
+
+    /* ===== SPINNER ===== */
+    .spinner {
+      width: 52px;
+      height: 52px;
+      border: 5px solid #E2E8F0;
+      border-top-color: #DC2626;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ===== INPUT & SELECT ===== */
+    .input-field {
+      width: 100%;
+      padding: 16px 22px;
+      border: 2px solid #E2E8F0;
+      border-radius: 14px;
+      font-size: 1.05rem;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      background: white;
+      color: #020617;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #DC2626;
+      box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+    }
+
+    .select-field {
+      width: 100%;
+      padding: 16px 22px;
+      border: 2px solid #E2E8F0;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 500;
+      font-family: 'Poppins', sans-serif;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      background: white;
+      color: #020617;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 18px center;
+      padding-right: 50px;
+    }
+
+    .select-field:focus {
+      outline: none;
+      border-color: #DC2626;
+      box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    .fade-in {
+      animation: fadeInUp 0.5s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .car-frame {
+        width: 280px;
+        height: 280px;
+      }
+
+      .cta-btn {
+        padding: 16px 34px;
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .car-frame {
+        width: 240px;
+        height: 240px;
+        border-radius: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-slatebg">
+
+  <!-- ============================================================ -->
+  <!-- SECTION 1: LANDING PAGE                                       -->
+  <!-- ============================================================ -->
+  <section id="landing" class="landing-bg min-h-screen flex flex-col items-center justify-center px-6 relative z-10">
+
+    <!-- Title & Tagline -->
+    <div class="text-center mb-14 fade-in">
+      <h1 class="text-6xl md:text-8xl font-black text-white tracking-tight mb-5">
+        Car<span class="text-racing">onomics</span>
+      </h1>
+      <p class="text-xl md:text-2xl text-gray-400 font-light tracking-wide">
+        Discover Cars, Drive Your Way.
+      </p>
+    </div>
+
+    <!-- Two-Column Layout -->
+    <div class="flex flex-col md:flex-row items-center justify-center gap-14 md:gap-24 w-full max-w-6xl">
+
+      <!-- Left: CTA -->
+      <div class="flex flex-col items-center md:items-start gap-7 fade-in" style="animation-delay:0.2s">
+        <p class="text-gray-400 text-lg text-center md:text-left max-w-md leading-relaxed">
+          Jelajahi katalog mobil terlengkap dari berbagai merek ternama. Temukan mobil impianmu sekarang.
+        </p>
+        <button class="cta-btn" onclick="scrollToDashboard()">
+          <span>Let's Find Out</span>
+          <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Right: Car Frame -->
+      <div class="car-frame fade-in" style="animation-delay:0.4s">
+        <img src="Photo_Car/TYT-001.jpg" alt="Featured Car"
+          onerror="this.src='https://placehold.co/400x400/0F172A/DC2626?text=🏎+Caronomics'">
+      </div>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 flex flex-col items-center gap-2 opacity-40 animate-bounce">
+      <svg width="26" height="26" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path d="M12 5v14M5 12l7 7 7-7" />
+      </svg>
+    </div>
+  </section>
+
+
+  <!-- ============================================================ -->
+  <!-- SECTION 2: MAIN DASHBOARD                                     -->
+  <!-- ============================================================ -->
+  <section id="dashboard" class="min-h-screen bg-slatebg">
+
+    <!-- ===== HEADER / NAVBAR ===== -->
+    <header class="sticky top-0 z-50 bg-white/85 backdrop-blur-2xl border-b border-gray-200/50 shadow-sm">
+      <div
+        class="w-full max-w-[1600px] mx-auto px-8 lg:px-12 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+
+        <!-- Logo -->
+        <a href="#landing" class="flex items-center gap-3 group">
+          <div
+            class="w-11 h-11 rounded-xl bg-gradient-to-br from-racing to-racingdk flex items-center justify-center shadow-lg shadow-racing/20">
+            <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+              <path
+                d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" />
+            </svg>
+          </div>
+          <span class="text-2xl font-extrabold text-jet group-hover:text-racing transition-colors">
+            Car<span class="text-racing group-hover:text-jet transition-colors">onomics</span>
+          </span>
+        </a>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center gap-2">
+          <button class="nav-tab active" data-tab="home" onclick="switchTab('home')">
+            <span class="flex items-center gap-2">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+              </svg>
+              Home
+            </span>
+          </button>
+          <button class="nav-tab" data-tab="search" onclick="switchTab('search')">
+            <span class="flex items-center gap-2">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                stroke-linejoin="round" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              Search
+            </span>
+          </button>
+          <button class="nav-tab" data-tab="filter" onclick="switchTab('filter')">
+            <span class="flex items-center gap-2">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                stroke-linejoin="round" viewBox="0 0 24 24">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+              Filter Mobil
+            </span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- ===== CONTENT AREA ===== -->
+    <main class="w-full max-w-[1600px] mx-auto px-8 lg:px-12 py-10">
+
+      <!-- ==================== HOME TAB ==================== -->
+      <div id="tab-home" class="tab-content">
+        <div class="mb-10">
+          <h2 class="text-3xl md:text-4xl font-extrabold text-jet">Semua Mobil</h2>
+          <p class="text-gray-500 mt-2 text-lg">Katalog lengkap dikelompokkan berdasarkan merek</p>
+        </div>
+        <div id="home-container">
+          <div class="flex flex-col items-center py-24 gap-3">
+            <div class="spinner"></div>
+            <p class="text-gray-400 text-sm">Memuat data...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== SEARCH TAB ==================== -->
+      <div id="tab-search" class="tab-content hidden">
+        <div class="mb-10">
+          <h2 class="text-3xl md:text-4xl font-extrabold text-jet">Cari Mobil</h2>
+          <p class="text-gray-500 mt-2 text-lg">Ketik nama kendaraan untuk menemukan mobil impianmu</p>
+        </div>
+        <div class="max-w-3xl mx-auto mb-12 relative">
+          <div class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </div>
+          <input id="search-input" type="text" class="input-field pl-16"
+            placeholder="Cari nama mobil... (contoh: Avanza, Civic, Almaz)" oninput="handleSearch(this.value)">
+        </div>
+        <div id="search-results">
+          <div class="text-center text-gray-400 py-20">
+            <svg class="mx-auto mb-4 opacity-25" width="72" height="72" fill="none" stroke="currentColor"
+              stroke-width="1.5" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <p class="text-xl font-semibold">Mulai ketik untuk mencari mobil</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== FILTER TAB ==================== -->
+      <div id="tab-filter" class="tab-content hidden">
+        <div class="mb-10">
+          <h2 class="text-3xl md:text-4xl font-extrabold text-jet">Filter Mobil</h2>
+          <p class="text-gray-500 mt-2 text-lg">Gunakan filter untuk menemukan mobil yang sesuai kebutuhanmu</p>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="bg-white rounded-2xl p-8 md:p-10 shadow-md border border-gray-100 mb-12">
+          <!-- Merek (Multi-Select Checkboxes) -->
+          <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+              <label class="block text-sm font-bold text-jet uppercase tracking-wider">Merek Mobil (Pilih Satu atau
+                Lebih)</label>
+              <span id="brand-selected-count"
+                class="text-xs font-bold px-3 py-1 bg-gray-100 text-gray-500 rounded-full">0 dipilih</span>
+            </div>
+            <div class="flex flex-wrap gap-2.5 sm:gap-3" id="brand-checkbox-list">
+              <label
+                class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-racing transition-all select-none has-[:checked]:border-racing has-[:checked]:bg-red-50 has-[:checked]:text-racing">
+                <input type="checkbox" name="merek" value="BYD" onchange="applyFilters()"
+                  class="w-4 h-4 accent-red-600 rounded cursor-pointer">
+                <span class="text-sm font-bold">BYD</span>
+              </label>
+              <label
+                class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-racing transition-all select-none has-[:checked]:border-racing has-[:checked]:bg-red-50 has-[:checked]:text-racing">
+                <input type="checkbox" name="merek" value="Chery" onchange="applyFilters()"
+                  class="w-4 h-4 accent-red-600 rounded cursor-pointer">
+                <span class="text-sm font-bold">Chery</span>
+              </label>
+              <label
+                class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-racing transition-all select-none has-[:checked]:border-racing has-[:checked]:bg-red-50 has-[:checked]:text-racing">
+                <input type="checkbox" name="merek" value="Daihatsu" onchange="applyFilters()"
+                  class="w-4 h-4 accent-red-600 rounded cursor-pointer">
+                <span class="text-sm font-bold">Daihatsu</span>
+              </label>
+              <label
+                class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-racing transition-all select-none has-[:checked]:border-racing has-[:checked]:bg-red-50 has-[:checked]:text-racing">
+                <input type="checkbox" name="merek" value="Honda" onchange="applyFilters()"
+                  class="w-4 h-4 accent-red-600 rounded cursor-pointer">
+                <span class="text-sm font-bold">Honda</span>
+              </label>
+              <label
+                class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-racing transition-all select-none has-[:checked]:border-racing has-[:checked]:bg-red-50 has-[:checked]:text-racing">
+                <input type="checkbox" name="merek" value="Hyundai" onchange="applyFilters()"
+                  class="w-4 h-4 accent-red-600 rounded cursor-pointer">
+                <span class="text-sm font-bold">Hyundai</span>
+              </label>
+              <label
+                class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-racing transition-all select-none has-[:checked]:border-racing has-[:checked]:bg-red-50 has-[:checked]:text-racing">
+                <input type="checkbox" name="merek" value="MG" onchange="applyFilters()"
+                  class="w-4 h-4 accent-red-600 rounded cursor-pointer">
+                <span class="text-sm font-bold">MG</span>
+              </label>
+              <label
+                class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-racing transition-all select-none has-[:checked]:border-racing has-[:checked]:bg-red-50 has-[:checked]:text-racing">
+                <input type="checkbox" name="merek" value="Mitsubishi" onchange="applyFilters()"
+                  class="w-4 h-4 accent-red-600 rounded cursor-pointer">
+                <span class="text-sm font-bold">Mitsubishi</span>
+              </label>
+              <label
+                class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-racing transition-all select-none has-[:checked]:border-racing has-[:checked]:bg-red-50 has-[:checked]:text-racing">
+                <input type="checkbox" name="merek" value="Suzuki" onchange="applyFilters()"
+                  class="w-4 h-4 accent-red-600 rounded cursor-pointer">
+                <span class="text-sm font-bold">Suzuki</span>
+              </label>
+              <label
+                class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-racing transition-all select-none has-[:checked]:border-racing has-[:checked]:bg-red-50 has-[:checked]:text-racing">
+                <input type="checkbox" name="merek" value="Toyota" onchange="applyFilters()"
+                  class="w-4 h-4 accent-red-600 rounded cursor-pointer">
+                <span class="text-sm font-bold">Toyota</span>
+              </label>
+              <label
+                class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-racing transition-all select-none has-[:checked]:border-racing has-[:checked]:bg-red-50 has-[:checked]:text-racing">
+                <input type="checkbox" name="merek" value="Wuling" onchange="applyFilters()"
+                  class="w-4 h-4 accent-red-600 rounded cursor-pointer">
+                <span class="text-sm font-bold">Wuling</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Secondary Filters: Bahan Bakar & Rentang Harga -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6 border-t border-gray-100">
+            <!-- Bahan Bakar -->
+            <div>
+              <label class="block text-sm font-bold text-jet mb-2.5 uppercase tracking-wider">Bahan Bakar</label>
+              <select id="filter-bahan-bakar" class="select-field" onchange="applyFilters()">
+                <option value="">Semua Bahan Bakar</option>
+                <option value="Full EV">Full EV</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Non EV">Non EV</option>
+              </select>
+            </div>
+
+            <!-- Rentang Harga -->
+            <div>
+              <label class="block text-sm font-bold text-jet mb-2.5 uppercase tracking-wider">Rentang Harga</label>
+              <select id="filter-harga" class="select-field" onchange="applyFilters()">
+                <option value="">Semua Harga</option>
+                <option value="0-200000000">Di bawah Rp 200 Juta</option>
+                <option value="200000000-500000000">Rp 200 — 500 Juta</option>
+                <option value="500000000-99999999999">Di atas Rp 500 Juta</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Reset -->
+          <div class="mt-8 flex justify-end">
+            <button onclick="resetFilters()"
+              class="px-8 py-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold text-sm hover:border-racing hover:text-racing hover:bg-red-50 transition-all uppercase tracking-wider">
+              Reset Filter
+            </button>
+          </div>
+        </div>
+
+        <div id="filter-results">
+          <div class="text-center text-gray-400 py-20">
+            <svg class="mx-auto mb-4 opacity-25" width="72" height="72" fill="none" stroke="currentColor"
+              stroke-width="1.5" viewBox="0 0 24 24">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+            </svg>
+            <p class="text-xl font-semibold">Pilih filter untuk menampilkan mobil</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="border-t border-gray-200 bg-white/50 backdrop-blur-sm">
+      <div class="w-full max-w-[1600px] mx-auto px-8 lg:px-12 py-8 text-center">
+        <p class="text-gray-400 text-sm">
+          &copy; 2026 <span class="font-bold text-jet">Caronomics</span>. All rights reserved.
+        </p>
+      </div>
+    </footer>
+  </section>
+
+
+  <!-- ============================================================ -->
+  <!-- MODAL DETAIL                                                  -->
+  <!-- ============================================================ -->
+  <div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+
+      <!-- Close Button -->
+      <div class="flex justify-end p-5 pb-0">
+        <button onclick="closeModalForce()"
+          class="w-11 h-11 rounded-full bg-gray-100 hover:bg-red-100 hover:text-racing flex items-center justify-center transition-all">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="px-7 pb-8">
+        <!-- Car Title -->
+        <h2 id="modal-title" class="text-2xl md:text-3xl font-extrabold text-jet mb-5"></h2>
+
+        <!-- Car Image -->
+        <div class="rounded-2xl overflow-hidden mb-7 bg-gray-100 shadow-inner">
+          <img id="modal-image" class="w-full h-60 object-cover" src="" alt="Car Image">
+        </div>
+
+        <!-- Specs Grid -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-slatebg rounded-xl p-5 border border-gray-100">
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1.5">Merek</p>
+            <p id="modal-merek" class="font-bold text-jet text-lg"></p>
+          </div>
+          <div class="bg-slatebg rounded-xl p-5 border border-gray-100">
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1.5">Negara Asal</p>
+            <p id="modal-negara" class="font-bold text-jet text-lg"></p>
+          </div>
+          <div class="bg-slatebg rounded-xl p-5 border border-gray-100">
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1.5">Bahan Bakar</p>
+            <p id="modal-bahan-bakar" class="font-bold text-jet text-lg"></p>
+          </div>
+          <div class="bg-slatebg rounded-xl p-5 border border-gray-100">
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1.5">Perkiraan Harga</p>
+            <p id="modal-harga" class="font-extrabold text-racing text-lg"></p>
+          </div>
+          <div class="bg-slatebg rounded-xl p-5 border border-gray-100">
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1.5">Tahun Rilis</p>
+            <p id="modal-tahun" class="font-bold text-jet text-lg"></p>
+          </div>
+          <div class="bg-slatebg rounded-xl p-5 border border-gray-100">
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1.5">Seat Capacity</p>
+            <p id="modal-seat" class="font-bold text-jet text-lg"></p>
+          </div>
+          <div class="bg-slatebg rounded-xl p-5 col-span-2 border border-gray-100">
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1.5">Transmisi</p>
+            <p id="modal-transmisi" class="font-bold text-jet text-lg"></p>
+          </div>
+          <div class="bg-slatebg rounded-xl p-5 col-span-2 border border-gray-100">
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1.5">Bentuk Mobil</p>
+            <p id="modal-bentuk" class="font-bold text-jet text-lg"></p>
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div id="modal-info-section" class="mt-7 hidden">
+          <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">Informasi</h3>
+          <p id="modal-info" class="text-gray-600 leading-relaxed text-base"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- JAVASCRIPT                                                    -->
+  <!-- ============================================================ -->
+  <script>
+    // =============================================================
+    //  SUPABASE CONFIGURATION
+    // =============================================================
+    const SUPABASE_URL = 'https://yvlcqibjhwdpkaoxlnod.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable__heoHsN_UUAbcZW63XuS4g_rCzD9Qse';
+
+    let db;
+    try {
+      db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      console.log('✅ Supabase client created');
+      console.log('   URL:', SUPABASE_URL);
+    } catch (e) {
+      console.error('❌ Gagal membuat Supabase client:', e);
+    }
+
+    // =============================================================
+    //  MAPPING FOTO BERDASARKAN id_mobil
+    // =============================================================
+    function getCarPhoto(car) {
+      if (!car) return 'Photo_Car/TYT-001.jpg';
+
+      // 1. Ambil langsung dari id_mobil (contoh: "BYD-001", "TYT-005")
+      if (car.id_mobil) {
+        const id = String(car.id_mobil).trim();
+        if (/\.(jpg|jpeg|png|webp)$/i.test(id)) {
+          return `Photo_Car/${id}`;
+        }
+        return `Photo_Car/${id}.jpg`;
+      }
+
+      // 2. Fallback jika ada foto_url
+      if (car.foto_url) return car.foto_url;
+
+      return 'Photo_Car/TYT-001.jpg';
+    }
+
+    function resetPhotoCounter() {
+      // Tidak lagi diperlukan karena foto presisi 1:1 dari id_mobil
+    }
+
+    // =============================================================
+    //  FORMAT HARGA
+    // =============================================================
+    function formatRupiah(num) {
+      if (!num && num !== 0) return '-';
+      return 'Rp ' + Number(num).toLocaleString('id-ID');
+    }
+
+    function formatHargaRange(min, max) {
+      if (min && max) return `${formatRupiah(min)} — ${formatRupiah(max)}`;
+      if (min) return `Mulai ${formatRupiah(min)}`;
+      if (max) return `Hingga ${formatRupiah(max)}`;
+      return 'Hubungi Dealer';
+    }
+
+    // =============================================================
+    //  SCROLL TO DASHBOARD
+    // =============================================================
+    function scrollToDashboard() {
+      document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // =============================================================
+    //  TAB SWITCHING
+    // =============================================================
+    function switchTab(tabName) {
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabName);
+      });
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      if (tabName === 'home') loadHomeCars();
+    }
+
+    // =============================================================
+    //  SHOW ERROR HELPER
+    // =============================================================
+    function showError(container, title, detail) {
+      container.innerHTML = `
+        <div class="text-center py-16">
+          <div class="inline-block max-w-lg text-left">
+            <div class="flex items-start gap-4 px-7 py-6 bg-red-50 text-red-700 rounded-2xl border border-red-200">
+              <svg class="flex-shrink-0 mt-0.5" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
+              <div>
+                <p class="font-extrabold text-lg">${title}</p>
+                <p class="text-sm mt-1 opacity-80">${detail}</p>
+              </div>
+            </div>
+            <div class="mt-4 px-2 text-xs text-gray-500 space-y-1">
+              <p>💡 <strong>Checklist debug:</strong></p>
+              <p>1. Buka Console browser (F12) untuk lihat error detail</p>
+              <p>2. Pastikan <code>SUPABASE_URL</code> dan <code>SUPABASE_KEY</code> sudah benar</p>
+              <p>3. Jalankan file via server lokal (Live Server), bukan <code>file://</code></p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =============================================================
+    //  CREATE CAR CARD
+    // =============================================================
+    function createCarCard(car, photoSrc) {
+      const card = document.createElement('div');
+      card.className = 'car-card fade-in';
+      card.innerHTML = `
+        <div class="car-card-img-wrap">
+          <img
+            class="car-card-img"
+            src="${photoSrc}"
+            alt="${car.nama_mobil || car.merek}"
+            onerror="this.src='https://placehold.co/400x250/E2E8F0/94A3B8?text=${encodeURIComponent(car.nama_mobil || 'Car')}'"
+            loading="lazy"
+          >
+        </div>
+        <div class="car-card-body">
+          <div class="mb-5">
+            <p class="text-xs font-bold text-racing uppercase tracking-widest mb-1.5">${car.merek || ''}</p>
+            <h3 class="text-xl font-extrabold text-jet leading-tight mb-3">${car.nama_mobil || 'Unnamed'}</h3>
+            <p class="text-racing font-extrabold text-lg">${formatHargaRange(car.harga_min, car.harga_max)}</p>
+            <div class="flex flex-wrap gap-2 mt-3">
+              ${car.bahan_bakar ? `<span class="text-xs px-3 py-1.5 rounded-full bg-red-50 text-racing font-bold">${car.bahan_bakar}</span>` : ''}
+              ${car.transmisi ? `<span class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-semibold">${car.transmisi}</span>` : ''}
+              ${car.tahun_rilis ? `<span class="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 font-semibold">${car.tahun_rilis}</span>` : ''}
+            </div>
+          </div>
+          <button class="see-more-btn" onclick='showModal(${JSON.stringify(car).replace(/'/g, "&#39;")}, "${photoSrc}")'>
+            See More
+          </button>
+        </div>
+      `;
+      return card;
+    }
+
+    // =============================================================
+    //  RENDER CAR GRID
+    // =============================================================
+    function renderCarGrid(cars, container) {
+      resetPhotoCounter();
+      container.innerHTML = '';
+
+      if (!cars || cars.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-gray-400 py-20">
+            <svg class="mx-auto mb-4 opacity-25" width="72" height="72" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
+            <p class="text-xl font-bold">Tidak ada mobil ditemukan</p>
+          </div>
+        `;
+        return;
+      }
+
+      const grid = document.createElement('div');
+      grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-7';
+      cars.forEach(car => {
+        const photo = getCarPhoto(car);
+        grid.appendChild(createCarCard(car, photo));
+      });
+      container.appendChild(grid);
+    }
+
+    // =============================================================
+    //  HOME: LOAD ALL CARS GROUPED BY BRAND
+    // =============================================================
+    let homeLoaded = false;
+
+    async function loadHomeCars() {
+      if (homeLoaded) return;
+
+      const container = document.getElementById('home-container');
+      container.innerHTML = '<div class="flex flex-col items-center py-24 gap-3"><div class="spinner"></div><p class="text-gray-400 text-sm">Menghubungkan ke Supabase...</p></div>';
+
+      if (!SUPABASE_URL || SUPABASE_URL.includes('GANTI')) {
+        showError(container, 'Supabase URL belum dikonfigurasi', 'Buka index.html dan ganti SUPABASE_URL dengan URL project Supabase Anda.');
+        return;
+      }
+      if (!SUPABASE_KEY || SUPABASE_KEY.includes('GANTI')) {
+        showError(container, 'Supabase Anon Key belum dikonfigurasi', 'Buka index.html dan ganti SUPABASE_KEY dengan anon key Anda.');
+        return;
+      }
+
+      try {
+        console.log('📡 Fetching data dari tabel infocar...');
+
+        const { data, error } = await db
+          .from('infocar')
+          .select('*')
+          .order('merek', { ascending: true })
+          .order('nama_mobil', { ascending: true });
+
+        console.log('📦 Response:', { data, error });
+
+        if (error) {
+          console.error('❌ Supabase error:', error);
+          throw new Error(`${error.message} (code: ${error.code || 'unknown'})`);
+        }
+
+        resetPhotoCounter();
+        container.innerHTML = '';
+
+        if (!data || data.length === 0) {
+          container.innerHTML = `
+            <div class="text-center text-gray-400 py-24">
+              <svg class="mx-auto mb-4 opacity-25" width="72" height="72" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+              <p class="text-xl font-bold">Koneksi berhasil, tapi data kosong</p>
+              <p class="text-sm mt-2">Tidak ada data mobil yang ditemukan di tabel "infocar".</p>
+            </div>
+          `;
+          return;
+        }
+
+        console.log(`✅ ${data.length} mobil berhasil dimuat!`);
+
+        // Group by brand
+        const grouped = {};
+        data.forEach(car => {
+          const brand = car.merek || 'Lainnya';
+          if (!grouped[brand]) grouped[brand] = [];
+          grouped[brand].push(car);
+        });
+
+        // Render each brand section
+        Object.keys(grouped).sort().forEach((brand, idx) => {
+          const section = document.createElement('div');
+          section.className = 'mb-14 fade-in';
+          section.style.animationDelay = `${idx * 0.08}s`;
+
+          const header = document.createElement('div');
+          header.className = 'mb-7';
+          header.innerHTML = `
+            <div class="brand-section-title">
+              <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" opacity="0.7">
+                <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+              </svg>
+              ${brand}
+              <span class="text-sm font-medium opacity-50">(${grouped[brand].length} mobil)</span>
+            </div>
+          `;
+          section.appendChild(header);
+
+          const grid = document.createElement('div');
+          grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-7';
+          grouped[brand].forEach(car => {
+            const photo = getCarPhoto(car);
+            grid.appendChild(createCarCard(car, photo));
+          });
+          section.appendChild(grid);
+          container.appendChild(section);
+        });
+
+        homeLoaded = true;
+      } catch (err) {
+        console.error('❌ loadHomeCars error:', err);
+        showError(container, 'Gagal memuat data mobil', err.message || 'Periksa koneksi dan konfigurasi Supabase Anda.');
+      }
+    }
+
+    // =============================================================
+    //  SEARCH: REAL-TIME
+    // =============================================================
+    let searchTimeout = null;
+
+    function handleSearch(query) {
+      clearTimeout(searchTimeout);
+      const container = document.getElementById('search-results');
+
+      if (!query.trim()) {
+        container.innerHTML = `
+          <div class="text-center text-gray-400 py-20">
+            <svg class="mx-auto mb-4 opacity-25" width="72" height="72" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <p class="text-xl font-semibold">Mulai ketik untuk mencari mobil</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '<div class="flex justify-center py-16"><div class="spinner"></div></div>';
+
+      searchTimeout = setTimeout(async () => {
+        try {
+          const { data, error } = await db
+            .from('infocar')
+            .select('*')
+            .ilike('nama_mobil', `%${query.trim()}%`)
+            .order('merek', { ascending: true })
+            .order('nama_mobil', { ascending: true });
+
+          if (error) throw error;
+
+          resetPhotoCounter();
+          renderCarGrid(data, container);
+
+          if (data && data.length > 0) {
+            const countBadge = document.createElement('div');
+            countBadge.className = 'mb-7';
+            countBadge.innerHTML = `
+              <span class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-50 text-green-700 rounded-full text-sm font-bold">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                ${data.length} mobil ditemukan untuk "${query}"
+              </span>
+            `;
+            container.insertBefore(countBadge, container.firstChild);
+          }
+        } catch (err) {
+          console.error('Search error:', err);
+          container.innerHTML = `<div class="text-center py-12 text-red-600"><p class="font-bold text-lg">Terjadi kesalahan: ${err.message}</p></div>`;
+        }
+      }, 350);
+    }
+
+    // =============================================================
+    //  FILTER
+    // =============================================================
+    async function applyFilters() {
+      const selectedBrands = Array.from(document.querySelectorAll('input[name="merek"]:checked')).map(cb => cb.value);
+      const bahanBakar = document.getElementById('filter-bahan-bakar').value;
+      const harga = document.getElementById('filter-harga').value;
+      const container = document.getElementById('filter-results');
+
+      // Update badge jumlah merek yang dipilih
+      const countEl = document.getElementById('brand-selected-count');
+      if (countEl) {
+        countEl.textContent = `${selectedBrands.length} dipilih`;
+        if (selectedBrands.length > 0) {
+          countEl.className = 'text-xs font-bold px-3 py-1 bg-red-50 text-racing rounded-full';
+        } else {
+          countEl.className = 'text-xs font-bold px-3 py-1 bg-gray-100 text-gray-500 rounded-full';
+        }
+      }
+
+      if (selectedBrands.length === 0 && !bahanBakar && !harga) {
+        container.innerHTML = `
+          <div class="text-center text-gray-400 py-20">
+            <svg class="mx-auto mb-4 opacity-25" width="72" height="72" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            <p class="text-xl font-semibold">Pilih filter untuk menampilkan mobil</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '<div class="flex justify-center py-16"><div class="spinner"></div></div>';
+
+      try {
+        let query = db.from('infocar').select('*');
+
+        if (selectedBrands.length > 0) {
+          query = query.in('merek', selectedBrands);
+        }
+        if (bahanBakar) query = query.eq('bahan_bakar', bahanBakar);
+
+        if (harga) {
+          const [min, max] = harga.split('-').map(Number);
+          query = query.gte('harga_min', min).lte('harga_max', max);
+        }
+
+        query = query.order('merek', { ascending: true }).order('nama_mobil', { ascending: true });
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        resetPhotoCounter();
+        renderCarGrid(data, container);
+
+        const activeFilters = [];
+        if (selectedBrands.length > 0) {
+          selectedBrands.forEach(b => activeFilters.push(b));
+        }
+        if (bahanBakar) activeFilters.push(bahanBakar);
+        if (harga) {
+          const labels = { '0-200000000': '< Rp 200 Jt', '200000000-500000000': 'Rp 200-500 Jt', '500000000-99999999999': '> Rp 500 Jt' };
+          activeFilters.push(labels[harga] || harga);
+        }
+
+        if (data && data.length >= 0) {
+          const summary = document.createElement('div');
+          summary.className = 'mb-7 flex flex-wrap items-center gap-2';
+          summary.innerHTML = `
+            <span class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-50 text-racing rounded-full text-sm font-bold">
+              ${data.length} mobil ditemukan
+            </span>
+            ${activeFilters.map(f => `<span class="px-4 py-2 bg-white text-gray-600 rounded-full text-xs font-bold border border-gray-200 shadow-sm">${f}</span>`).join('')}
+          `;
+          container.insertBefore(summary, container.firstChild);
+        }
+      } catch (err) {
+        console.error('Filter error:', err);
+        container.innerHTML = `<div class="text-center py-12 text-red-600"><p class="font-bold text-lg">Terjadi kesalahan: ${err.message}</p></div>`;
+      }
+    }
+
+    function resetFilters() {
+      document.querySelectorAll('input[name="merek"]').forEach(cb => cb.checked = false);
+      const countEl = document.getElementById('brand-selected-count');
+      if (countEl) {
+        countEl.textContent = '0 dipilih';
+        countEl.className = 'text-xs font-bold px-3 py-1 bg-gray-100 text-gray-500 rounded-full';
+      }
+      document.getElementById('filter-bahan-bakar').value = '';
+      document.getElementById('filter-harga').value = '';
+      applyFilters();
+    }
+
+    // =============================================================
+    //  MODAL
+    // =============================================================
+    function showModal(car, photoSrc) {
+      document.getElementById('modal-title').textContent = `${car.merek} ${car.nama_mobil}`;
+      document.getElementById('modal-image').src = photoSrc;
+      document.getElementById('modal-image').alt = car.nama_mobil;
+      document.getElementById('modal-merek').textContent = car.merek || '-';
+      document.getElementById('modal-negara').textContent = car.negara || '-';
+      document.getElementById('modal-bahan-bakar').textContent = car.bahan_bakar || '-';
+      document.getElementById('modal-harga').textContent = formatHargaRange(car.harga_min, car.harga_max);
+      document.getElementById('modal-tahun').textContent = car.tahun_rilis || '-';
+      document.getElementById('modal-seat').textContent = car.seat_capacity ? `${car.seat_capacity} Penumpang` : '-';
+      document.getElementById('modal-transmisi').textContent = car.transmisi || '-';
+      document.getElementById('modal-bentuk').textContent = car.bentuk_mobil || '-';
+
+      const infoSection = document.getElementById('modal-info-section');
+      const infoText = document.getElementById('modal-info');
+      if (car.info_mobil) {
+        infoText.textContent = car.info_mobil;
+        infoSection.classList.remove('hidden');
+      } else {
+        infoSection.classList.add('hidden');
+      }
+
+      document.getElementById('modal-overlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(e) {
+      if (e.target === e.currentTarget) closeModalForce();
+    }
+
+    function closeModalForce() {
+      document.getElementById('modal-overlay').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModalForce();
+    });
+
+    // =============================================================
+    //  INIT
+    // =============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      loadHomeCars();
+    });
+  </script>
+
+</body>
+
+</html>
